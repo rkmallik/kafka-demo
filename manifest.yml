@@ -1,0 +1,7 @@
+---
+applications:
+- name: YOUR-APP-NAME-IN-PWS
+  no-route: true
+  memory: 1024M
+  buildpack: java_buildpack
+  health-check-type: process
