@@ -18,7 +18,7 @@ public class DemoKafkaApplication {
 	public static Logger log = LoggerFactory.getLogger(DemoKafkaApplication.class);
 
 	@Autowired
-	KafkaTemplate<Long, Status> kafkaTemplate;
+	KafkaTemplate<Long, TwitterStatusPojo> kafkaTemplate;
 
 	@Value("${com.example.demo.filterword}")
 	public String filterword;
@@ -35,9 +35,9 @@ public class DemoKafkaApplication {
 			@Override
 			public void onStatus(Status status) {
 				if (status.getLang().equalsIgnoreCase("en")) {
-//					log.debug("Status ID (Long): " + status.getId() + " User: " + status.getUser().getScreenName()
-//							+ " Tweet: " + status.getText());
-					kafkaTemplate.send("test", status.getId(), status);
+					TwitterStatusPojo demostatus = new TwitterStatusPojo(status);
+					log.debug(demostatus.toString());
+					kafkaTemplate.send("test", demostatus.getId(), demostatus);
 				}
 			}
 
@@ -67,11 +67,10 @@ public class DemoKafkaApplication {
 			}
 		}).filter(new FilterQuery().track(filterword));
 	}
-	
+
 	@KafkaListener(topics = "test", groupId = "group_id")
-	public void consumer(Status status) {
-		log.debug("Consuming from test topic! Status ID (Long): " + status.getId() + " User: " + status.getUser().getScreenName() + 
-				" Tweet: " + status.getText());
+	public void consumer(TwitterStatusPojo demostatus) {
+		log.debug("Consuming from test topic! "+demostatus.toString());
 	}
 
 }
